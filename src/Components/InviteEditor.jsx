@@ -109,7 +109,14 @@ const InviteEditor = () => {
       {/* Main Canvas Area */}
 
       <div
-        className={`flex-1 flex items-center justify-center transition-all duration-300 p-4`}
+        className={`flex-1 flex  justify-center transition-all duration-300 p-4 ${
+    window.innerWidth < 768 ? "pt-4" : "pt-0"
+  }`}
+  style={{
+    marginTop: window.innerWidth < 768 ? "8px" : "0px", // Margin on mobile
+    width: "100%",
+    height: "100%",
+  }}
       >
         <canvas
           ref={CanvasRef}
