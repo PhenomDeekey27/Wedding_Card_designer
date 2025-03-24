@@ -293,7 +293,7 @@ const Toolbar = ({ canvas }) => {
           data-tooltip-id="customShape"
         >
           <FaShapes />
-          <Tooltip id="customShape">Custom Shapes</Tooltip>
+          <Tooltip id="customShape" positionStrategy="fixed">Custom Shapes</Tooltip>
         </button>
 
         <div
@@ -319,14 +319,18 @@ const Toolbar = ({ canvas }) => {
         <button
           onClick={() => addText()}
           className="bg-indigo-700 text-white font-bold hover:bg-indigo-600 p-2 rounded flex items-center justify-center w-12 h-12"
+           data-tooltip-id="text"
         >
           <IoText />
+          <Tooltip id="text" positionStrategy="fixed" >Add text</Tooltip>
         </button>
         <button
           onClick={() => picRef.current.click()}
           className="bg-indigo-700 text-white font-bold hover:bg-indigo-600 p-2 rounded flex items-center justify-center w-12 h-12"
+        data-tooltip-id="picture"
         >
           <AiFillPicture />
+          <Tooltip id="picture" positionStrategy="fixed" >Upload Image</Tooltip>
         </button>
         <button
           onClick={removeSelectedObject}
@@ -334,13 +338,16 @@ const Toolbar = ({ canvas }) => {
           data-tooltip-id="removeObject"
         >
           <MdDelete></MdDelete>
-          <Tooltip id="removeObject">Remove Selected Object</Tooltip>
+          <Tooltip id="removeObject" positionStrategy="fixed" >Remove Selected Object</Tooltip>
         </button>
         <button
           onClick={() =>downloadCanvasAsImage()}
           className="bg-indigo-700 text-white font-bold hover:bg-indigo-600 p-2 rounded flex items-center justify-center w-12 h-12"
+        data-tooltip-id="Download"
         >
          <FaDownload></FaDownload>
+         <Tooltip id="Download" positionStrategy="fixed" >Download</Tooltip>
+
         </button>
         
       </div>

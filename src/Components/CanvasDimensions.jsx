@@ -144,7 +144,7 @@ const CanvasDimensions = ({ canvas }) => {
             data-tooltip-id={template.name}
           >
             {template.icon}
-            <Tooltip id={template.name} place="top" delayShow={0}>
+            <Tooltip id={template.name} place="top"  positionStrategy="fixed" delayShow={0}>
               {template.name}
             </Tooltip>
           </button>
@@ -159,7 +159,7 @@ const CanvasDimensions = ({ canvas }) => {
         data-tooltip-id="custom-canvas"
       >
         <FaCropSimple />
-        <Tooltip id="custom-canvas" place="top" delayShow={0}>
+        <Tooltip id="custom-canvas" place="top" delayShow={0} positionStrategy="fixed" >
           Custom Dimensions
         </Tooltip>
       </button>

@@ -82,14 +82,15 @@ const InviteEditor = () => {
       {/* Sidebar (Fixed Controls) */}
 
       <div
-       className={`bg-gray-900 text-white p-4 flex gap-4
-        flex-row 
-        md:flex-col 
-        w-full md:w-auto 
-        h-auto md:h-full
-        overflow-x-auto md:overflow-visible
-        fixed bottom-0 left-0 right-0 z-50 md:relative
-      `}
+         className={`bg-gray-900 text-white p-4 flex gap-4
+          flex-row 
+          md:flex-col 
+          w-full md:w-auto 
+           md:h-full
+          overflow-y-auto md:overflow-visible
+        md:overflow-x-auto
+          fixed bottom-0 left-0 right-0 z-50 md:relative
+        `}
       style={{
         scrollbarWidth: "none", // Hide scrollbar for better UX
         WebkitOverflowScrolling: "touch", // Smooth scrolling on mobile
@@ -102,6 +103,7 @@ const InviteEditor = () => {
         />
         <CanvasDimensions canvas={Canvas} />
         {Canvas && <Toolbar canvas={Canvas} />}
+        <TemplatesPanel canvas={Canvas}></TemplatesPanel>
       </div>
 
       {/* Main Canvas Area */}
@@ -115,7 +117,7 @@ const InviteEditor = () => {
         ></canvas>
       </div>
       <div>
-        <TemplatesPanel canvas={Canvas}></TemplatesPanel>
+        
       </div>
     </div>
   );

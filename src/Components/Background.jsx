@@ -196,7 +196,7 @@ const handleBgChange = (e) => {
           id="background-icon"
           data-tooltip-id="background-tooltip"
         />
-        <Tooltip id="background-tooltip" place="top" delayShow={0}>
+        <Tooltip id="background-tooltip" place="top" positionStrategy="fixed" delayShow={0}>
           Background
         </Tooltip>
       </button>

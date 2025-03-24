@@ -291,14 +291,14 @@ const applyTemplate = (template) => {
   return (
     <>
       {/* Template Buttons */}
-      <div className="flex gap-2">
+      <div className="flex flex-row md:flex-col gap-4">
         <button
           onClick={() => setTemplatesModal(true)}
           className="bg-indigo-700 text-white font-bold hover:bg-indigo-600 p-2 rounded flex items-center justify-center w-12 h-12"
           data-tooltip-id="templates"
         >
           <FaLayerGroup />
-          <Tooltip id="templates">Templates</Tooltip>
+          <Tooltip id="templates" positionStrategy="fixed">Templates</Tooltip>
         </button>
         
         <button
@@ -307,7 +307,7 @@ const applyTemplate = (template) => {
           data-tooltip-id="saveTemplate"
         >
           <FaSave />
-          <Tooltip id="saveTemplate">Save as Template</Tooltip>
+          <Tooltip id="saveTemplate" positionStrategy="fixed">Save as Template</Tooltip>
         </button>
       </div>
 
