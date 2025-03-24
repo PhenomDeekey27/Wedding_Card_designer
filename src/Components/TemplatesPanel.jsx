@@ -41,7 +41,7 @@ const TemplatesPanel = ({ canvas }) => {
             top: 150
           }
         ],
-        background: '#ffffff'
+        background: 'red'
       }
     },
     {
@@ -128,49 +128,99 @@ const TemplatesPanel = ({ canvas }) => {
   ];
 
  
-
-  const applyTemplate = (template) => {
+// const applyTemplate = (template) => {
+//     if (!canvas) return;
+  
+//     console.log('Loading template:', template);
+  
+//     // Get current canvas dimensions (keep existing size)
+//     const canvasWidth = canvas.getWidth();
+//     const canvasHeight = canvas.getHeight();
+  
+//     // Clear the canvas before applying a new template
+//     canvas.clear();
+  
+//     // Load the template JSON into the canvas
+//     canvas.loadFromJSON(template.canvasJson, () => {
+//       console.log('Template loaded successfully');
+  
+//       // Get all objects from the template
+//       const objects = canvas.getObjects();
+  
+//       // Calculate the bounding box of the loaded objects
+//       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  
+//       objects.forEach((obj) => {
+//         const boundingBox = obj.getBoundingRect(); // Get the bounding box
+//         minX = Math.min(minX, boundingBox.left);
+//         minY = Math.min(minY, boundingBox.top);
+//         maxX = Math.max(maxX, boundingBox.left + boundingBox.width);
+//         maxY = Math.max(maxY, boundingBox.top + boundingBox.height);
+//       });
+  
+//       // Calculate template dimensions based on objects' bounding box
+//       const templateWidth = maxX - minX || canvasWidth;
+//       const templateHeight = maxY - minY || canvasHeight;
+  
+//       // Scale the template to fit into the current canvas size
+//       const scaleX = canvasWidth / templateWidth;
+//       const scaleY = canvasHeight / templateHeight;
+//       const scaleFactor = Math.min(scaleX, scaleY);
+  
+//       // Center the scaled objects on the canvas
+//       const offsetX = (canvasWidth - templateWidth * scaleFactor) / 2;
+//       const offsetY = (canvasHeight - templateHeight * scaleFactor) / 2;
+  
+//       // Apply scaling and reposition objects to fit the canvas
+//       objects.forEach((obj) => {
+//         obj.scaleX *= scaleFactor;
+//         obj.scaleY *= scaleFactor;
+//         obj.left = (obj.left - minX) * scaleFactor + offsetX;
+//         obj.top = (obj.top - minY) * scaleFactor + offsetY;
+//         obj.setCoords(); // Recalculate object coordinates
+//       });
+  
+//       // Set the background color if the template has one
+//       canvas.BackgroundColor=
+//         template.canvasJson.background || '#ffffff',
+//         canvas.renderAll.bind(canvas)
+      
+  
+//       // Render and update the canvas after applying template
+//       canvas.requestRenderAll();
+  
+//       // Close the templates modal after applying
+//       setTemplatesModal(false);
+//     });
+//   };
+  
+const applyTemplate = (template) => {
     if (!canvas) return;
   
     console.log('Loading template:', template);
   
-    // Clear the canvas before applying a new template
-    canvas.clear();
+    // Get the original dimensions from the template
+    const templateWidth = template.canvasJson.width || canvas.getWidth();
+    const templateHeight = template.canvasJson.height || canvas.getHeight();
   
-    // Load the template JSON
+    console.log('Template Dimensions:', templateWidth, templateHeight);
+  
+    // Resize canvas to match template dimensions
+    canvas.setWidth(templateWidth);
+    canvas.setHeight(templateHeight);
+  
+    // Load the template JSON and adjust objects after loading
     canvas.loadFromJSON(template.canvasJson, () => {
       console.log('Template loaded successfully');
   
-      // Canvas dimensions
-      const canvasWidth = canvas.width || 800;
-      const canvasHeight = canvas.height || 600;
-  
-      // Get bounding box of loaded objects
-      const objects = canvas.getObjects();
-      const boundingRect = canvas.getObjectsBoundingBox();
-  
-      const templateWidth = boundingRect.width || canvasWidth;
-      const templateHeight = boundingRect.height || canvasHeight;
-  
-      // Calculate scale factor to fit template to canvas
-      const scaleX = canvasWidth / templateWidth;
-      const scaleY = canvasHeight / templateHeight;
-      const scaleFactor = Math.min(scaleX, scaleY);
-  
-      // Apply scaling and reposition objects
-      objects.forEach((obj) => {
-        obj.scaleX *= scaleFactor;
-        obj.scaleY *= scaleFactor;
-        obj.left *= scaleFactor;
-        obj.top *= scaleFactor;
-        obj.setCoords();
-      });
-  
-      // Set canvas background correctly
-      canvas.setBackgroundColor(template.canvasJson.background || '#ffffff', canvas.renderAll.bind(canvas));
-  
-      // Render and update canvas
+      // Apply background if available
+      canvas.backgroundColor = template.canvasJson.background || '#ffffff';
       canvas.renderAll();
+  
+      // Render and update canvas after positioning
+      canvas.requestRenderAll();
+  
+      // Close the template modal after applying
       setTemplatesModal(false);
     });
   };
@@ -178,39 +228,49 @@ const TemplatesPanel = ({ canvas }) => {
   
   const saveAsTemplate = () => {
     if (!canvas) return;
-    
+  
     // Create a name for the template
     const templateName = prompt("Enter a name for this template:", "My Custom Template");
     if (!templateName) return;
-    
-    // Get canvas JSON
+  
+    // Get canvas JSON and dimensions
     const canvasJson = canvas.toJSON();
-    
+    const canvasWidth = canvas.getWidth(); // Save current canvas width
+    const canvasHeight = canvas.getHeight(); // Save current canvas height
+  
+    // Include dimensions in the JSON
+    const templateWithDimensions = {
+      ...canvasJson,
+      width: canvasWidth,
+      height: canvasHeight,
+    };
+  
     // Create thumbnail from current canvas
     const thumbnailDataUrl = canvas.toDataURL({
       format: 'png',
       quality: 0.5,
-      multiplier: 0.3 // Scale down for thumbnail
+      multiplier: 0.3, // Scale down for thumbnail
     });
-    
+  
     // Create new template object
     const newTemplate = {
       id: `custom-${Date.now()}`,
       name: templateName,
       thumbnail: thumbnailDataUrl,
-      canvasJson: canvasJson
+      canvasJson: templateWithDimensions, // Save canvas JSON with dimensions
     };
-    
+  
     // Add to custom templates
-    setCustomTemplates(prev => [...prev, newTemplate]);
-    
+    setCustomTemplates((prev) => [...prev, newTemplate]);
+  
     // Save to localStorage for persistence
     const savedTemplates = JSON.parse(localStorage.getItem('customTemplates') || '[]');
     savedTemplates.push(newTemplate);
     localStorage.setItem('customTemplates', JSON.stringify(savedTemplates));
-    
+  
     alert(`Template "${templateName}" saved successfully!`);
   };
+  
   
   const deleteTemplate = (templateId) => {
     // Remove from state
