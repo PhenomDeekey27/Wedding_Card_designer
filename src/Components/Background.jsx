@@ -3,11 +3,12 @@ import { TbBackground } from "react-icons/tb";
 import { Tooltip } from "react-tooltip";
 import { useRef } from "react";
 import * as fabric from "fabric"; // v6
-const Background = ({ canvas, handleEmptycanvas, sethandleEmptycanvas }) => {
-  const [showColors, setShowColors] = useState(false);
+const Background = ({ canvas,sethandleEmptycanvas,setbgFile }) => {
+
   const fileInputRef = useRef(null); // Ref for hidden input
   const [isCanvasSelected, setIsCanvasSelected] = useState(false); // Track selection
   const backgroundButtonRef = useRef(null);
+
 
   const colors = [
     "#FF5733",
@@ -23,21 +24,21 @@ const Background = ({ canvas, handleEmptycanvas, sethandleEmptycanvas }) => {
 
     const handleSelection = (event) => {
       if (event.selected && event.selected.length > 0) {
-        console.log("Selected Object:", event.selected[0]);
+       
         setIsCanvasSelected(true);
         canvas.wrapperEl.style.border = "none"; // Remove border when selecting object
       }
     };
 
     const handleDeselection = () => {
-      console.log("Canvas deselected");
+    
       setIsCanvasSelected(false);
     };
 
     const handleCanvasClick = () => {
       const activeObject = canvas.getActiveObject();
       if (!activeObject) {
-        console.log("Canvas clicked (no object selected)");
+        
         setIsCanvasSelected(false);
         sethandleEmptycanvas((prev) => !prev);
         backgroundButtonRef.current.click();
@@ -59,94 +60,112 @@ const Background = ({ canvas, handleEmptycanvas, sethandleEmptycanvas }) => {
   const applyBackgroundColor = (e) => {
     if (!canvas) return;
 
-    console.log(e.target.value, "color");
 
     canvas.backgroundImage = null;
 
     canvas.backgroundColor = e.target.value;
     canvas.renderAll();
-    console.log(`Background color changed to ${e.target.value}`);
+  
   };
 
-const handleBgChange = (e) => {
-  console.log("File chosen");
+  const handleBgChange = (e) => {
+    
 
-  if (!canvas) return; // Ensure Fabric.js canvas is initialized
+    if (!canvas) return; // Ensure Fabric.js canvas is initialized
 
-  const file = e.target.files[0];
-  if (!file) return; // If no file is selected, exit
+    const file = e.target.files[0];
+    if (!file) return; // If no file is selected, exit
+    setbgFile(file)
+    //setting background on local state
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const imageUrl = event.target.result; // Get base64 image URL
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const imageUrl = event.target.result; // Get base64 image URL
 
-    const image = new Image();
-    image.src = imageUrl;
+      const image = new Image();
+      image.src = imageUrl;
 
-    image.onload = () => {
-      console.log("Image loaded successfully!");
+      image.onload = () => {
 
-      // Create a fabric image
-      const fabricImage = new fabric.Image(image, {
-        originX: "left",
-        originY: "top",
-      });
 
-      // Get canvas dimensions
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
+        // Create a fabric image
+        const fabricImage = new fabric.Image(image, {
+          originX: "left",
+          originY: "top",
+        });
 
-      // Calculate aspect ratio and scale correctly
-      const scaleX = canvasWidth / fabricImage.width;
-      const scaleY = canvasHeight / fabricImage.height;
-      const scale = Math.max(scaleX, scaleY); // Scale to cover the canvas
+        // Get canvas dimensions
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
 
-      // Set the image to fill the canvas while maintaining aspect ratio
-      fabricImage.set({
-        scaleX: scale,
-        scaleY: scale,
-        left: (canvasWidth - fabricImage.width * scale) / 2,
-        top: (canvasHeight - fabricImage.height * scale) / 2,
-      });
+        // Calculate aspect ratio and scale correctly
+        const scaleX = canvasWidth / fabricImage.width;
+        const scaleY = canvasHeight / fabricImage.height;
+        const scale = Math.max(scaleX, scaleY); // Scale to cover the canvas
 
-      // Clear any existing background image
-      canvas.backgroundImage = null;
+        // Set the image to fill the canvas while maintaining aspect ratio
+        fabricImage.set({
+          scaleX: scale,
+          scaleY: scale,
+          left: (canvasWidth - fabricImage.width * scale) / 2,
+          top: (canvasHeight - fabricImage.height * scale) / 2,
+        });
 
-      // Set the image as the background manually
-      canvas.set("backgroundImage", fabricImage);
-      canvas.renderAll();
+        // Clear any existing background image
+        canvas.backgroundImage = null;
 
-      console.log("Background image set and scaled to fit canvas perfectly!");
+        // Set the image as the background manually
+        // canvas.set("backgroundImage", fabricImage);
+        // canvas.renderAll();
+        canvas.add(fabricImage); // Add image as a normal object
+        // fabricImage.sendToBack(); // Send it behind other objects
+
+      };
+
+      image.onerror = () => {
+    
+      };
     };
 
-    image.onerror = () => {
-      console.error("Failed to load image.");
-    };
+    reader.readAsDataURL(file); // Convert file to base64
   };
 
-  reader.readAsDataURL(file); // Convert file to base64
-};
+ 
+  //   if (!canvas) return;
+  //   canvas.backgroundColor = "#ffffff";
+  //   canvas.backgroundImage = null;
+  //   canvas.renderAll();
+  // };
 
-  const removeBackground = (e) => {
+  const removeBackground = () => {
     if (!canvas) return;
+  
+   
+    const objects = canvas.getObjects();
+    if (objects.length > 0) {
+      const bgObject = objects[0]; d
+      if (bgObject.type === "image") {
+        canvas.remove(bgObject);
+      }
+    }
+  
+ 
     canvas.backgroundColor = "#ffffff";
-    canvas.backgroundImage = null;
     canvas.renderAll();
   };
-
-
+  
   const scaleAndCenterImage = () => {
     if (!canvas || !canvas.backgroundImage) return;
-  
+
     const fabricImage = canvas.backgroundImage;
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
-  
-    // Calculate aspect ratio and scale correctly
+
+    
     const scaleX = canvasWidth / fabricImage.width;
     const scaleY = canvasHeight / fabricImage.height;
-    const scale = Math.max(scaleX, scaleY); // Maintain aspect ratio and cover canvas
-  
+    const scale = Math.max(scaleX, scaleY); 
+
     // Align and scale the background correctly after resizing
     fabricImage.set({
       scaleX: scale,
@@ -154,56 +173,57 @@ const handleBgChange = (e) => {
       left: (canvasWidth - fabricImage.width * scale) / 2,
       top: (canvasHeight - fabricImage.height * scale) / 2,
     });
-  
+
     canvas.renderAll();
   };
 
   useEffect(() => {
     if (!canvas) return;
-  
+
     const handleResize = () => {
-      canvas.setWidth(window.innerWidth * 0.8); // Adjust width
-      canvas.setHeight(window.innerHeight * 0.6); // Adjust height
-      scaleAndCenterImage(); // Realign background after resize
+      canvas.setWidth(window.innerWidth * 0.8); 
+      canvas.setHeight(window.innerHeight * 0.6);
+      scaleAndCenterImage(); 
     };
-  
+
     window.addEventListener("resize", handleResize);
-  
+
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, [canvas]);
-  
-  
 
   return (
     <div>
     
-      {/* //current One */}
 
       <button
         data-modal-target="popup-modal"
         data-modal-toggle="popup-modal"
         className="bg-indigo-700 hover:bg-indigo-600 p-2 rounded flex items-center justify-center w-12 h-12"
-         data-tooltip-id="background-tooltip"
-       
+        data-tooltip-id="background-tooltip"
         type="button"
         onClick={() =>
           document.getElementById("background").classList.toggle("hidden")
         }
       >
-       <TbBackground
+        <TbBackground
           id="background-icon"
           data-tooltip-id="background-tooltip"
         />
-        <Tooltip id="background-tooltip" place="top" positionStrategy="fixed" delayShow={0}>
+        <Tooltip
+          id="background-tooltip"
+          place="top"
+          positionStrategy="fixed"
+          delayShow={0}
+        >
           Background
         </Tooltip>
       </button>
 
       <div
         id="background"
-        tabindex="-1"
+        tabIndex="-1"
         className="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
       >
         <div className="relative p-4 w-full max-w-md max-h-full">
@@ -225,9 +245,9 @@ const handleBgChange = (e) => {
               >
                 <path
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                 />
               </svg>
@@ -261,9 +281,9 @@ const handleBgChange = (e) => {
                   >
                     <path
                       stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       d="m1 1 4 4 4-4"
                     />
                   </svg>
@@ -307,15 +327,13 @@ const handleBgChange = (e) => {
                   />
                 </div>
                 <div className="relative">
-                  
-                    <button
-                      className="bg-none p-2 border-0 cursor-pointer
+                  <button
+                    className="bg-none p-2 border-0 cursor-pointer
                hover:bg-gray-500 w-full rounded-md"
-                      onClick={removeBackground}
-                    >
-                      Remove Background
-                    </button>
-                  
+                    onClick={removeBackground}
+                  >
+                    Remove Background
+                  </button>
                 </div>
               </div>
             </div>

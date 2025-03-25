@@ -2,203 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { FaLayerGroup, FaSave } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
 import * as fabric from "fabric"; // v6
+import uploadToCloudinary from '../utils/ImageUpload';
 
-const TemplatesPanel = ({ canvas }) => {
+const TemplatesPanel = ({ canvas , bgFile }) => {
   const [templatesModal, setTemplatesModal] = useState(false);
   const [customTemplates, setCustomTemplates] = useState([]);
 
+
+
   // Default templates - each contains JSON representation of a fabric canvas
   const defaultTemplates = [
-    {
-      id: 'template1',
-      name: 'Wedding Invitation',
-      thumbnail: '/template-thumbnails/wedding.png',
-      canvasJson: {
-        objects: [
-          {
-            type: 'rect',
-            width: 400,
-            height: 300,
-            fill: '#f5f5dc',
-            left: 200,
-            top: 150
-          },
-          {
-            type: 'i-text',
-            text: 'You Are Invited',
-            fontSize: 36,
-            fontFamily: 'Times New Roman',
-            fill: '#4b0082',
-            left: 200,
-            top: 100
-          },
-          {
-            type: 'i-text',
-            text: 'Jane & John',
-            fontSize: 28,
-            fontFamily: 'Georgia',
-            fill: '#4b0082',
-            left: 200,
-            top: 150
-          }
-        ],
-        background: 'red'
-      }
-    },
-    {
-      id: 'template2',
-      name: 'Birthday Party',
-      thumbnail: '/template-thumbnails/birthday.png',
-      canvasJson: {
-        objects: [
-          {
-            type: 'rect',
-            width: 400,
-            height: 300,
-            fill: '#ffebcd',
-            left: 200,
-            top: 150
-          },
-          {
-            type: 'i-text',
-            text: 'Birthday Celebration!',
-            fontSize: 32,
-            fontFamily: 'Arial',
-            fill: '#ff4500',
-            left: 200,
-            top: 100
-          }
-        ],
-        background: '#ffffff'
-      }
-    },
-    {
-      id: 'template3',
-      name: 'Baby Shower',
-      thumbnail: '/template-thumbnails/babyshower.png',
-      canvasJson: {
-        objects: [
-          {
-            type: 'rect',
-            width: 400,
-            height: 300,
-            fill: '#e6e6fa',
-            left: 200,
-            top: 150
-          },
-          {
-            type: 'i-text',
-            text: 'Baby Shower',
-            fontSize: 36,
-            fontFamily: 'Verdana',
-            fill: '#9370db',
-            left: 200,
-            top: 100
-          }
-        ],
-        background: '#ffffff'
-      }
-    },
-    {
-      id: 'template4',
-      name: 'Anniversary',
-      thumbnail: '/template-thumbnails/anniversary.png',
-      canvasJson: {
-        objects: [
-          {
-            type: 'rect',
-            width: 400,
-            height: 300,
-            fill: '#faf0e6',
-            left: 200,
-            top: 150
-          },
-          {
-            type: 'i-text',
-            text: 'Happy Anniversary',
-            fontSize: 36,
-            fontFamily: 'Georgia',
-            fill: '#8b0000',
-            left: 200,
-            top: 100
-          }
-        ],
-        background: '#ffffff'
-      }
-    },
+    
   ];
 
  
-// const applyTemplate = (template) => {
-//     if (!canvas) return;
-  
-//     console.log('Loading template:', template);
-  
-//     // Get current canvas dimensions (keep existing size)
-//     const canvasWidth = canvas.getWidth();
-//     const canvasHeight = canvas.getHeight();
-  
-//     // Clear the canvas before applying a new template
-//     canvas.clear();
-  
-//     // Load the template JSON into the canvas
-//     canvas.loadFromJSON(template.canvasJson, () => {
-//       console.log('Template loaded successfully');
-  
-//       // Get all objects from the template
-//       const objects = canvas.getObjects();
-  
-//       // Calculate the bounding box of the loaded objects
-//       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  
-//       objects.forEach((obj) => {
-//         const boundingBox = obj.getBoundingRect(); // Get the bounding box
-//         minX = Math.min(minX, boundingBox.left);
-//         minY = Math.min(minY, boundingBox.top);
-//         maxX = Math.max(maxX, boundingBox.left + boundingBox.width);
-//         maxY = Math.max(maxY, boundingBox.top + boundingBox.height);
-//       });
-  
-//       // Calculate template dimensions based on objects' bounding box
-//       const templateWidth = maxX - minX || canvasWidth;
-//       const templateHeight = maxY - minY || canvasHeight;
-  
-//       // Scale the template to fit into the current canvas size
-//       const scaleX = canvasWidth / templateWidth;
-//       const scaleY = canvasHeight / templateHeight;
-//       const scaleFactor = Math.min(scaleX, scaleY);
-  
-//       // Center the scaled objects on the canvas
-//       const offsetX = (canvasWidth - templateWidth * scaleFactor) / 2;
-//       const offsetY = (canvasHeight - templateHeight * scaleFactor) / 2;
-  
-//       // Apply scaling and reposition objects to fit the canvas
-//       objects.forEach((obj) => {
-//         obj.scaleX *= scaleFactor;
-//         obj.scaleY *= scaleFactor;
-//         obj.left = (obj.left - minX) * scaleFactor + offsetX;
-//         obj.top = (obj.top - minY) * scaleFactor + offsetY;
-//         obj.setCoords(); // Recalculate object coordinates
-//       });
-  
-//       // Set the background color if the template has one
-//       canvas.BackgroundColor=
-//         template.canvasJson.background || '#ffffff',
-//         canvas.renderAll.bind(canvas)
-      
-  
-//       // Render and update the canvas after applying template
-//       canvas.requestRenderAll();
-  
-//       // Close the templates modal after applying
-//       setTemplatesModal(false);
-//     });
-//   };
-  
+
 const applyTemplate = (template) => {
   if (!canvas) return;
 
-  console.log('Loading template:', template);
+
 
   // Get template dimensions
   const templateWidth = template.canvasJson.width || canvas.getWidth();
@@ -209,7 +31,7 @@ const applyTemplate = (template) => {
   canvas.setHeight(templateHeight);
   canvas.calcOffset(); // Recalculate offsets immediately
 
-  // Preload and apply background if available
+  // Check if background image is available in the template
   if (template.canvasJson.backgroundImage?.src) {
     fabric.Image.fromURL(template.canvasJson.backgroundImage.src, (img) => {
       img.set({
@@ -217,22 +39,23 @@ const applyTemplate = (template) => {
         scaleY: template.canvasJson.backgroundImage.scaleY || 1,
         top: template.canvasJson.backgroundImage.top || 0,
         left: template.canvasJson.backgroundImage.left || 0,
-        selectable: false,
-        evented: false, // Make sure it's not interactive
+        selectable: true, // Make it movable and editable
+        evented: true, // Enable interactions
+        hasControls: true, // Allow resizing/rotation
+        lockUniScaling: true, // Optional: keep aspect ratio while scaling
       });
 
-      // Add the image as a normal object or use as background
-      canvas.setBackgroundImage(img, () => {
-        canvas.renderAll();
-        canvas.calcOffset(); // Important after setting background
-        console.log('Background image loaded and applied');
-      });
+      // Add the image as a normal object at the bottom
+      canvas.add(img);
+      canvas.sendToBack(img); // Send background image to back
+      canvas.renderAll();
+   
     });
   }
 
   // Load the rest of the template AFTER background is applied
   canvas.loadFromJSON(template.canvasJson, () => {
-    console.log('Template loaded successfully');
+    
 
     // Force re-render after applying the template
     setTimeout(() => {
@@ -247,9 +70,19 @@ const applyTemplate = (template) => {
 };
 
 
-  
-  const saveAsTemplate = () => {
+  const saveAsTemplate = async() => {
     if (!canvas) return;
+
+    let bgUrl=null
+
+    if (bgFile) {
+      bgUrl = await uploadToCloudinary(bgFile);
+      if (!bgUrl) {
+        alert("❌ Failed to upload background. Please try again.");
+        return;
+      }
+    }
+
   
     // Create a name for the template
     const templateName = prompt("Enter a name for this template:", "My Custom Template");
@@ -257,8 +90,10 @@ const applyTemplate = (template) => {
   
     // Get canvas JSON and dimensions
     const canvasJson = canvas.toJSON();
-    const canvasWidth = canvas.getWidth(); // Save current canvas width
-    const canvasHeight = canvas.getHeight(); // Save current canvas height
+    const canvasWidth = canvas.getWidth();
+    const canvasHeight = canvas.getHeight();
+    canvasJson.src=bgUrl
+
   
     // Include dimensions in the JSON
     const templateWithDimensions = {
@@ -273,24 +108,31 @@ const applyTemplate = (template) => {
       quality: 0.5,
       multiplier: 0.3, // Scale down for thumbnail
     });
+
   
     // Create new template object
     const newTemplate = {
       id: `custom-${Date.now()}`,
       name: templateName,
       thumbnail: thumbnailDataUrl,
-      canvasJson: templateWithDimensions, // Save canvas JSON with dimensions
+      canvasJson: templateWithDimensions,
+      backgroundUrl:bgUrl
     };
+
+
   
-    // Add to custom templates
-    setCustomTemplates((prev) => [...prev, newTemplate]);
+    // Update state first
+    setCustomTemplates((prev) => {
+      const updatedTemplates = [...prev, newTemplate];
   
-    // Save to localStorage for persistence
-    const savedTemplates = JSON.parse(localStorage.getItem('customTemplates') || '[]');
-    savedTemplates.push(newTemplate);
-    localStorage.setItem('customTemplates', JSON.stringify(savedTemplates));
+      // Save updated templates to localStorage
+      localStorage.setItem('customTemplates', JSON.stringify(updatedTemplates));
+      return updatedTemplates;
+    });
   
     alert(`Template "${templateName}" saved successfully!`);
+    // Clear bgFile after upload
+
   };
   
   
@@ -331,6 +173,7 @@ const applyTemplate = (template) => {
           <FaSave />
           <Tooltip id="saveTemplate" positionStrategy="fixed">Save as Template</Tooltip>
         </button>
+
       </div>
 
       {/* Templates Modal */}

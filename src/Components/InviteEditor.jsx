@@ -12,6 +12,7 @@ const InviteEditor = () => {
   const [Canvas, setCanvas] = useState(null);
   const [handleEmptycanvas, sethandleEmptycanvas] = useState(false);
   const [collapse, setCollapse] = useState(false);
+  const [bgFile, setbgFile] = useState(null)
 
   const updateCanvasSize = (canvas) => {
     if (!canvas) return;
@@ -92,18 +93,19 @@ const InviteEditor = () => {
           fixed bottom-0 left-0 right-0 z-50 md:relative
         `}
       style={{
-        scrollbarWidth: "none", // Hide scrollbar for better UX
-        WebkitOverflowScrolling: "touch", // Smooth scrolling on mobile
+        scrollbarWidth: "none", 
+        WebkitOverflowScrolling: "touch", 
       }}
       >
         <Background
           canvas={Canvas}
           handleEmptycanvas={handleEmptycanvas}
           sethandleEmptycanvas={sethandleEmptycanvas}
+          setbgFile={setbgFile}
         />
         <CanvasDimensions canvas={Canvas} />
         {Canvas && <Toolbar canvas={Canvas} />}
-        <TemplatesPanel canvas={Canvas}></TemplatesPanel>
+        <TemplatesPanel canvas={Canvas} bgFile={bgFile}></TemplatesPanel>
       </div>
 
       {/* Main Canvas Area */}

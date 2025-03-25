@@ -4,7 +4,7 @@ import InviteEditor from './Components/InviteEditor'
 
 const App = () => {
   return (
-    <div className=''>
+    <div>
       <InviteEditor></InviteEditor>
       
     </div>
