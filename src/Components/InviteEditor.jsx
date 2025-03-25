@@ -109,7 +109,7 @@ const InviteEditor = () => {
       {/* Main Canvas Area */}
 
       <div
-        className={`flex-1 flex  justify-center transition-all duration-300 p-4 ${
+        className={`flex-1 flex md:items-center justify-center transition-all duration-300 p-4 ${
     window.innerWidth < 768 ? "pt-4" : "pt-0"
   }`}
   style={{

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaLayerGroup, FaSave } from 'react-icons/fa';
 import { Tooltip } from 'react-tooltip';
+import * as fabric from "fabric"; // v6
 
 const TemplatesPanel = ({ canvas }) => {
   const [templatesModal, setTemplatesModal] = useState(false);
@@ -195,36 +196,57 @@ const TemplatesPanel = ({ canvas }) => {
 //   };
   
 const applyTemplate = (template) => {
-    if (!canvas) return;
-  
-    console.log('Loading template:', template);
-  
-    // Get the original dimensions from the template
-    const templateWidth = template.canvasJson.width || canvas.getWidth();
-    const templateHeight = template.canvasJson.height || canvas.getHeight();
-  
-    console.log('Template Dimensions:', templateWidth, templateHeight);
-  
-    // Resize canvas to match template dimensions
-    canvas.setWidth(templateWidth);
-    canvas.setHeight(templateHeight);
-  
-    // Load the template JSON and adjust objects after loading
-    canvas.loadFromJSON(template.canvasJson, () => {
-      console.log('Template loaded successfully');
-  
-      // Apply background if available
-      canvas.backgroundColor = template.canvasJson.background || '#ffffff';
-      canvas.renderAll();
-  
-      // Render and update canvas after positioning
-      canvas.requestRenderAll();
-  
-      // Close the template modal after applying
-      setTemplatesModal(false);
+  if (!canvas) return;
+
+  console.log('Loading template:', template);
+
+  // Get template dimensions
+  const templateWidth = template.canvasJson.width || canvas.getWidth();
+  const templateHeight = template.canvasJson.height || canvas.getHeight();
+
+  // Resize canvas to fit template dimensions
+  canvas.setWidth(templateWidth);
+  canvas.setHeight(templateHeight);
+  canvas.calcOffset(); // Recalculate offsets immediately
+
+  // Preload and apply background if available
+  if (template.canvasJson.backgroundImage?.src) {
+    fabric.Image.fromURL(template.canvasJson.backgroundImage.src, (img) => {
+      img.set({
+        scaleX: template.canvasJson.backgroundImage.scaleX || 1,
+        scaleY: template.canvasJson.backgroundImage.scaleY || 1,
+        top: template.canvasJson.backgroundImage.top || 0,
+        left: template.canvasJson.backgroundImage.left || 0,
+        selectable: false,
+        evented: false, // Make sure it's not interactive
+      });
+
+      // Add the image as a normal object or use as background
+      canvas.setBackgroundImage(img, () => {
+        canvas.renderAll();
+        canvas.calcOffset(); // Important after setting background
+        console.log('Background image loaded and applied');
+      });
     });
-  };
-  
+  }
+
+  // Load the rest of the template AFTER background is applied
+  canvas.loadFromJSON(template.canvasJson, () => {
+    console.log('Template loaded successfully');
+
+    // Force re-render after applying the template
+    setTimeout(() => {
+      canvas.renderAll(); // Force immediate re-render
+      canvas.calcOffset(); // Recalculate canvas offsets
+      canvas.requestRenderAll(); // Extra safety to re-render everything
+    }, 50);
+
+    // Close the template modal
+    setTemplatesModal(false);
+  });
+};
+
+
   
   const saveAsTemplate = () => {
     if (!canvas) return;
